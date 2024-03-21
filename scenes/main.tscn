@@ -1,0 +1,24 @@
+[gd_scene load_steps=5 format=3 uid="uid://e5djdsuoqrc5"]
+
+[ext_resource type="Shader" path="res://shaders/black_white.gdshader" id="1_dagdp"]
+[ext_resource type="Texture2D" uid="uid://j5o8w8kqe8af" path="res://sprites/mt_fuji.png" id="1_s3nna"]
+[ext_resource type="Texture2D" uid="uid://l83f41ye1246" path="res://sprites/paper.png" id="2_d1i1l"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_d2g1g"]
+shader = ExtResource("1_dagdp")
+shader_parameter/color_count = 3
+shader_parameter/rotation = 0.35
+shader_parameter/thickness = 0.6805
+shader_parameter/frequency = 3.5909
+shader_parameter/max_blacknesss = 0.0
+shader_parameter/luminosity_factor = 0.6902
+shader_parameter/noise_texture = ExtResource("2_d1i1l")
+
+[node name="main" type="Node2D"]
+
+[node name="mt_fuji" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_d2g1g")
+scale = Vector2(0.77, 0.77)
+texture = ExtResource("1_s3nna")
+
+[node name="Camera2D" type="Camera2D" parent="."]
