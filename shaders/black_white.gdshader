@@ -9,7 +9,11 @@ uniform float max_blacknesss : hint_range(0.0, 1.0, .0001);
 
 uniform float luminosity_factor : hint_range(0.0, 1.0, .0001);
 
+uniform int kuwahara_sample_count : hint_range(0, 100, 1);
+uniform float kuwahara_sample_size : hint_range(0.0, 1.0, .0001);
+
 uniform sampler2D noise_texture;
+uniform sampler2D original_texture;
 
 void fragment() {
 	vec2 texture_multiplier = 1.0 / TEXTURE_PIXEL_SIZE;
@@ -67,19 +71,83 @@ void fragment() {
 		}
 	}
 	
+	vec3[4] colors;
+	int[4] total_counts;
+	float[4] differences;
+	
+	for (int x = -kuwahara_sample_count; x < kuwahara_sample_count; x++)
+	{
+		for (int y = -kuwahara_sample_count; y < kuwahara_sample_count; y++)
+		{
+			vec2 position = UV;
+			
+			position.x += float(x) * kuwahara_sample_size / float(kuwahara_sample_count);
+			position.y += float(y) * kuwahara_sample_size / float(kuwahara_sample_count);
+			
+			if ((position.x < .0 || position.x > 1.0) || (position.y < .0 || position.y > 1.0))
+			{
+				continue;
+			}
+			
+			vec3 color = texture(original_texture, position).rgb;
+			
+			int index = 0;
+			
+			if (x > 0)
+			{
+				index += 1;
+			}
+			if (y > 0)
+			{
+				index += 2;
+			}
+			
+			colors[index] += color;
+			total_counts[index] += 1;
+		}
+	}
+	
+	float lowest_difference = 3.0;
+	int lowest_index = 0;
+	
+	for (int index = 0; index < 4; index++)
+	{
+		colors[index] /= float(total_counts[index]);
+		
+		vec3 color_difference = COLOR.rgb - colors[index];
+		differences[index] = abs(color_difference.r) + abs(color_difference.g) + abs(color_difference.b);
+		
+		if (differences[index] < lowest_difference){
+			lowest_difference = differences[index];
+			lowest_index = index;
+		}
+	}
+	
+	if (total_counts[lowest_index] > 0)
+	{
+		COLOR.rgb = colors[lowest_index];
+	}
+	
+	
+	if (total_counts[lowest_index] == 0)
+	{
+		COLOR.rgb = vec3(.2, .4, .6);
+	}
+	
+	/*
 	COLOR.r = luminosity * luminosity_factor + COLOR.r * (1.0 - luminosity_factor);
 	COLOR.g = luminosity * luminosity_factor + COLOR.g * (1.0 - luminosity_factor);
 	COLOR.b = luminosity * luminosity_factor + COLOR.b * (1.0 - luminosity_factor);
 	
-	COLOR.rgb *= vec3(luminosity);
-	COLOR *= texture(noise_texture, UV);
+	COLOR.rgb *= vec3(luminosity);*/
+	
+	//COLOR *= texture(noise_texture, UV);
 }
 
 vec3 srgb_to_oklab(vec3 color)
 {
 	return vec3(1.0);
 }
-
 
 float srgb_to_lightness(vec3 color)
 {

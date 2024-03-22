@@ -8,16 +8,20 @@
 shader = ExtResource("1_dagdp")
 shader_parameter/color_count = 3
 shader_parameter/rotation = 0.35
-shader_parameter/thickness = 0.6805
-shader_parameter/frequency = 3.5909
+shader_parameter/thickness = 0.3325
+shader_parameter/frequency = 0.8943
 shader_parameter/max_blacknesss = 0.0
-shader_parameter/luminosity_factor = 0.6902
+shader_parameter/luminosity_factor = 1.0
+shader_parameter/kuwahara_sample_count = 5
+shader_parameter/kuwahara_sample_size = 0.2585
 shader_parameter/noise_texture = ExtResource("2_d1i1l")
+shader_parameter/original_texture = ExtResource("1_s3nna")
 
 [node name="main" type="Node2D"]
 
 [node name="mt_fuji" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_d2g1g")
+position = Vector2(-6, -12)
 scale = Vector2(0.77, 0.77)
 texture = ExtResource("1_s3nna")
 
