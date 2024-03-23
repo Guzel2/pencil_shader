@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://e5djdsuoqrc5"]
+[gd_scene load_steps=15 format=3 uid="uid://e5djdsuoqrc5"]
 
 [ext_resource type="Texture2D" uid="uid://cjc27arnotpa4" path="res://sprites/falling_leaves.png" id="1_bj3r2"]
 [ext_resource type="Shader" path="res://shaders/black_white.gdshader" id="1_dagdp"]
@@ -6,272 +6,37 @@
 [ext_resource type="Texture2D" uid="uid://j5o8w8kqe8af" path="res://sprites/mt_fuji.png" id="1_s3nna"]
 [ext_resource type="Texture2D" uid="uid://l83f41ye1246" path="res://sprites/paper.png" id="2_d1i1l"]
 [ext_resource type="Texture2D" uid="uid://bfvyl33f7go0n" path="res://sprites/girl_rainbow_hair.png" id="3_ckrg0"]
-
-[sub_resource type="Shader" id="Shader_skoei"]
-code = "shader_type canvas_item;
-
-uniform int color_count : hint_range(0, 256, 1);
-
-uniform float rotation : hint_range(-1.0, 1.0, .001);
-uniform float thickness : hint_range(0.0, 1.0, .0001);
-uniform float frequency : hint_range(0.0, 20.0, .0001);
-uniform float max_blacknesss : hint_range(0.0, 1.0, .0001);
-uniform float pen_frequency : hint_range(1.0, 200.0, .0001);
-uniform float paper_stength : hint_range(0.0, 20.0, .0001);
-
-uniform float line_strength : hint_range(0.0, 1.0, .0001);
-uniform float brightness : hint_range(0.0, 20.0, .0001);
-uniform float contrast : hint_range(0.0, 20.0, .0001);
-uniform float saturation : hint_range(0.0, 20.0, .0001);
-
-uniform sampler2D paper_texture;
-
-float add_line_effect(vec3 color, vec2 uv)
-{
-	float luminosity = dot(color.rgb, vec3(0.21, 0.72, 0.07));
-	
-	luminosity = round(luminosity * float(color_count - 1)) / float(color_count - 1);
-	
-	int color_id = int(luminosity * float(color_count - 1) + .5);
-	float pencil_color = 1.0;
-	
-	for (int i = color_id; i < color_count - 1; i++)
-	{
-		float rot = rotation + sin(float(i * 4)); 
-		
-		float x = uv.x * rot + uv.y * (1.0 - abs(rot));
-		float y = uv.y * rot - uv.x * (1.0 - abs(rot));
-		
-		float frequency_multiplier = 1.0;
-		
-		if (abs(rot) < .5)
-		{
-			float temp_rotation = abs(rot) * 2.0;
-			
-			frequency_multiplier = 1.0 * (1.0 - temp_rotation) + sqrt(2.0) * temp_rotation;
-		}
-		else
-		{
-			float temp_rotation = abs(rot) * 2.0 - 1.0;
-			
-			frequency_multiplier = sqrt(2.0) * (1.0 - temp_rotation) + 1.0 * temp_rotation;
-		}
-		
-		float _frequency = 200.0 * frequency * frequency_multiplier;
-		
-		float greyness = sin(x * _frequency) - 1.0 + thickness * 3.0;
-		
-		
-		if (greyness > .0)
-		{
-			pencil_color *= 1.0 - greyness;
-			if (pencil_color < max_blacknesss) {
-				pencil_color = max_blacknesss;
-				break;
-			}
-		}
-	}
-	
-	return pencil_color;
-}
-
-vec3 srgb_to_oklab(vec3 color)
-{
-	return vec3(1.0);
-}
-
-void fragment() {
-	vec2 texture_multiplier = 1.0 / TEXTURE_PIXEL_SIZE;
-	texture_multiplier = normalize(texture_multiplier);
-	
-	vec2 uv = UV;
-	uv *= texture_multiplier;
-	
-	vec4 paper_color = texture(paper_texture, UV);
-	float pencil_color = add_line_effect(COLOR.rgb, uv);
-	
-	
-	paper_color.r = pow(paper_color.r, paper_stength);
-	paper_color.g = pow(paper_color.g, paper_stength);
-	paper_color.b = pow(paper_color.b, paper_stength);
-	
-	COLOR.rgb = mix(vec3(0.0), COLOR.rgb, brightness);
-	COLOR.rgb = mix(vec3(0.5), COLOR.rgb, contrast);
-	COLOR.rgb = mix(vec3(dot(vec3(1.0), COLOR.rgb) * 0.33333), COLOR.rgb, saturation);
-	COLOR = vec4(pencil_color) * line_strength + COLOR * (1.0 - line_strength);
-	COLOR *= paper_color;
-}
-
-float srgb_to_lightness(vec3 color)
-{
-	float maxRGB = .0;
-	float minRGB = 1.0;
-	
-	for (int i = 0; i < 3; i++)
-	{
-		if (color[i] > maxRGB)
-		{
-			maxRGB = color[i];
-		}
-		
-		if (color[i] < minRGB)
-		{
-			minRGB = color[i];
-		}
-	}
-	
-	float lightness = (maxRGB + minRGB) / 2.0;
-	
-	return lightness;
-}"
+[ext_resource type="Texture2D" uid="uid://b83i4s2v1qg13" path="res://sprites/fire.png" id="7_et81j"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ky7di"]
 load_path = "res://.godot/imported/paper.png-991709bd6cb2b8ae2aeaa18029a4d78c.ctex"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_0mg1v"]
-shader = SubResource("Shader_skoei")
-shader_parameter/color_count = 3
+shader = ExtResource("1_dagdp")
+shader_parameter/color_count = 6
+shader_parameter/shade_count = 2
 shader_parameter/rotation = -0.35
 shader_parameter/thickness = 0.1963
 shader_parameter/frequency = 4.9393
 shader_parameter/max_blacknesss = 0.0
-shader_parameter/pen_frequency = 1.0
-shader_parameter/paper_stength = 4.5672
-shader_parameter/line_strength = 0.7753
-shader_parameter/brightness = 2.5398
+shader_parameter/paper_stength = 2.7694
+shader_parameter/line_strength = 0.618
+shader_parameter/brightness = 1.6409
 shader_parameter/contrast = 1.3748
-shader_parameter/saturation = 1.3715
+shader_parameter/saturation = 2.2703
 shader_parameter/paper_texture = SubResource("CompressedTexture2D_ky7di")
-
-[sub_resource type="Shader" id="Shader_b3tun"]
-code = "shader_type canvas_item;
-
-uniform int color_count : hint_range(0, 256, 1);
-
-uniform float rotation : hint_range(-1.0, 1.0, .001);
-uniform float thickness : hint_range(0.0, 1.0, .0001);
-uniform float frequency : hint_range(0.0, 20.0, .0001);
-uniform float max_blacknesss : hint_range(0.0, 1.0, .0001);
-uniform float pen_frequency : hint_range(1.0, 200.0, .0001);
-uniform float paper_stength : hint_range(0.0, 20.0, .0001);
-
-uniform float line_strength : hint_range(0.0, 1.0, .0001);
-uniform float brightness : hint_range(0.0, 20.0, .0001);
-uniform float contrast : hint_range(0.0, 20.0, .0001);
-uniform float saturation : hint_range(0.0, 20.0, .0001);
-
-uniform sampler2D paper_texture;
-
-float add_line_effect(vec3 color, vec2 uv)
-{
-	float luminosity = dot(color.rgb, vec3(0.21, 0.72, 0.07));
-	
-	luminosity = round(luminosity * float(color_count - 1)) / float(color_count - 1);
-	
-	int color_id = int(luminosity * float(color_count - 1) + .5);
-	float pencil_color = 1.0;
-	
-	for (int i = color_id; i < color_count - 1; i++)
-	{
-		float rot = rotation + sin(float(i * 4)); 
-		
-		float x = uv.x * rot + uv.y * (1.0 - abs(rot));
-		float y = uv.y * rot - uv.x * (1.0 - abs(rot));
-		
-		float frequency_multiplier = 1.0;
-		
-		if (abs(rot) < .5)
-		{
-			float temp_rotation = abs(rot) * 2.0;
-			
-			frequency_multiplier = 1.0 * (1.0 - temp_rotation) + sqrt(2.0) * temp_rotation;
-		}
-		else
-		{
-			float temp_rotation = abs(rot) * 2.0 - 1.0;
-			
-			frequency_multiplier = sqrt(2.0) * (1.0 - temp_rotation) + 1.0 * temp_rotation;
-		}
-		
-		float _frequency = 200.0 * frequency * frequency_multiplier;
-		
-		float greyness = sin(x * _frequency) - 1.0 + thickness * 3.0;
-		
-		
-		if (greyness > .0)
-		{
-			pencil_color *= 1.0 - greyness;
-			if (pencil_color < max_blacknesss) {
-				pencil_color = max_blacknesss;
-				break;
-			}
-		}
-	}
-	
-	return pencil_color;
-}
-
-vec3 srgb_to_oklab(vec3 color)
-{
-	return vec3(1.0);
-}
-
-void fragment() {
-	vec2 texture_multiplier = 1.0 / TEXTURE_PIXEL_SIZE;
-	texture_multiplier = normalize(texture_multiplier);
-	
-	vec2 uv = UV;
-	uv *= texture_multiplier;
-	
-	vec4 paper_color = texture(paper_texture, UV);
-	float pencil_color = add_line_effect(COLOR.rgb, uv);
-	
-	
-	paper_color.r = pow(paper_color.r, paper_stength);
-	paper_color.g = pow(paper_color.g, paper_stength);
-	paper_color.b = pow(paper_color.b, paper_stength);
-	
-	COLOR.rgb = mix(vec3(0.0), COLOR.rgb, brightness);
-	COLOR.rgb = mix(vec3(0.5), COLOR.rgb, contrast);
-	COLOR.rgb = mix(vec3(dot(vec3(1.0), COLOR.rgb) * 0.33333), COLOR.rgb, saturation);
-	COLOR = vec4(pencil_color) * line_strength + COLOR * (1.0 - line_strength);
-	COLOR *= paper_color;
-}
-
-float srgb_to_lightness(vec3 color)
-{
-	float maxRGB = .0;
-	float minRGB = 1.0;
-	
-	for (int i = 0; i < 3; i++)
-	{
-		if (color[i] > maxRGB)
-		{
-			maxRGB = color[i];
-		}
-		
-		if (color[i] < minRGB)
-		{
-			minRGB = color[i];
-		}
-	}
-	
-	float lightness = (maxRGB + minRGB) / 2.0;
-	
-	return lightness;
-}"
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_nkt4h"]
 load_path = "res://.godot/imported/paper.png-991709bd6cb2b8ae2aeaa18029a4d78c.ctex"
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l6rne"]
-shader = SubResource("Shader_b3tun")
-shader_parameter/color_count = 4
+shader = ExtResource("1_dagdp")
+shader_parameter/color_count = 6
+shader_parameter/shade_count = 2
 shader_parameter/rotation = -0.35
-shader_parameter/thickness = 0.1514
+shader_parameter/thickness = 0.3761
 shader_parameter/frequency = 11.2313
 shader_parameter/max_blacknesss = 0.6067
-shader_parameter/pen_frequency = 1.0
 shader_parameter/paper_stength = 3.9235
 shader_parameter/line_strength = 0.8651
 shader_parameter/brightness = 2.7504
@@ -282,22 +47,51 @@ shader_parameter/paper_texture = SubResource("CompressedTexture2D_nkt4h")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_d2g1g"]
 shader = ExtResource("1_dagdp")
 shader_parameter/color_count = 4
+shader_parameter/shade_count = 2
 shader_parameter/rotation = -0.799
-shader_parameter/thickness = 0.3371
-shader_parameter/frequency = 6.7369
+shader_parameter/thickness = 0.4944
+shader_parameter/frequency = 7.1863
 shader_parameter/max_blacknesss = 0.0
-shader_parameter/paper_stength = 5.8427
-shader_parameter/line_strength = 0.9214
-shader_parameter/brightness = 5.045
-shader_parameter/contrast = 1.4494
-shader_parameter/saturation = 0.954
+shader_parameter/paper_stength = 1.8989
+shader_parameter/line_strength = 0.3933
+shader_parameter/brightness = 1.16
+shader_parameter/contrast = 0.745
+shader_parameter/saturation = 1.6812
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_165wn"]
+shader = ExtResource("1_dagdp")
+shader_parameter/color_count = 6
+shader_parameter/shade_count = 3
+shader_parameter/rotation = -0.719
+shader_parameter/thickness = 0.5843
+shader_parameter/frequency = 8.09
+shader_parameter/max_blacknesss = 0.4544
+shader_parameter/paper_stength = 4.4944
+shader_parameter/line_strength = 0.573
+shader_parameter/brightness = 2.3483
+shader_parameter/contrast = 0.959
+shader_parameter/saturation = 1.507
 shader_parameter/paper_texture = ExtResource("2_d1i1l")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_eb463"]
+shader = ExtResource("1_dagdp")
+shader_parameter/color_count = 5
+shader_parameter/shade_count = 3
+shader_parameter/rotation = -0.135
+shader_parameter/thickness = 0.7153
+shader_parameter/frequency = 9.4394
+shader_parameter/max_blacknesss = 0.0
+shader_parameter/paper_stength = 0.0
+shader_parameter/line_strength = 0.2304
+shader_parameter/brightness = 0.948
+shader_parameter/contrast = 0.846
+shader_parameter/saturation = 1.401
 
 [node name="main" type="Node2D"]
 
 [node name="Apricot" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_0mg1v")
-position = Vector2(4994, 538)
+position = Vector2(4998, 538)
 texture = ExtResource("1_o0ydk")
 
 [node name="FallingLeaves" type="Sprite2D" parent="."]
@@ -311,11 +105,16 @@ position = Vector2(1258, 955)
 texture = ExtResource("3_ckrg0")
 
 [node name="mt_fuji" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_d2g1g")
+material = SubResource("ShaderMaterial_165wn")
 position = Vector2(-6, -12)
 scale = Vector2(0.77, 0.77)
 texture = ExtResource("1_s3nna")
 
+[node name="Fire" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_eb463")
+position = Vector2(-590, 1447)
+texture = ExtResource("7_et81j")
+
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(2878, 314)
-zoom = Vector2(0.6, 0.6)
+position = Vector2(-566, 1442)
+zoom = Vector2(0.885, 0.885)
