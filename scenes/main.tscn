@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://e5djdsuoqrc5"]
+[gd_scene load_steps=14 format=3 uid="uid://e5djdsuoqrc5"]
 
 [ext_resource type="Texture2D" uid="uid://cjc27arnotpa4" path="res://sprites/falling_leaves.png" id="1_bj3r2"]
 [ext_resource type="Shader" path="res://shaders/black_white.gdshader" id="1_dagdp"]
@@ -6,10 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://j5o8w8kqe8af" path="res://sprites/mt_fuji.png" id="1_s3nna"]
 [ext_resource type="Texture2D" uid="uid://l83f41ye1246" path="res://sprites/paper.png" id="2_d1i1l"]
 [ext_resource type="Texture2D" uid="uid://bfvyl33f7go0n" path="res://sprites/girl_rainbow_hair.png" id="3_ckrg0"]
-[ext_resource type="Shader" path="res://shaders/kuwahara_peter_eve.gdshader" id="4_g1grr"]
-[ext_resource type="Shader" path="res://shaders/kuwahara_frank_the_ape.gdshader" id="5_olcyt"]
-[ext_resource type="Shader" path="res://shaders/screen_space.gdshader" id="6_v7h1g"]
-[ext_resource type="Shader" path="res://shaders/screen_space_bw_lines.gdshader" id="7_6ixxs"]
 
 [sub_resource type="Shader" id="Shader_skoei"]
 code = "shader_type canvas_item;
@@ -290,41 +286,11 @@ shader_parameter/rotation = -0.799
 shader_parameter/thickness = 0.3371
 shader_parameter/frequency = 6.7369
 shader_parameter/max_blacknesss = 0.0
-shader_parameter/pen_frequency = 1.0
 shader_parameter/paper_stength = 5.8427
-shader_parameter/line_strength = 0.7753
+shader_parameter/line_strength = 0.9214
 shader_parameter/brightness = 5.045
 shader_parameter/contrast = 1.4494
 shader_parameter/saturation = 0.954
-shader_parameter/paper_texture = ExtResource("2_d1i1l")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_r2soy"]
-shader = ExtResource("4_g1grr")
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_7478t"]
-shader = ExtResource("5_olcyt")
-shader_parameter/radius = 4
-shader_parameter/offset = Vector3(0, 0, 0)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_lmxxo"]
-shader = ExtResource("6_v7h1g")
-shader_parameter/brightness = 1.0
-shader_parameter/contrast = 1.0
-shader_parameter/saturation = 1.0
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_xd8sf"]
-shader = ExtResource("7_6ixxs")
-shader_parameter/color_count = 5
-shader_parameter/rotation = -0.404
-shader_parameter/thickness = 0.4494
-shader_parameter/frequency = 4.9437
-shader_parameter/max_blacknesss = 0.2247
-shader_parameter/pen_frequency = 200.0
-shader_parameter/paper_stength = 2.6967
-shader_parameter/line_strength = 1.0
-shader_parameter/saturation = 3.1406
-shader_parameter/kuwahara_sample_count = null
-shader_parameter/kuwahara_sample_size = null
 shader_parameter/paper_texture = ExtResource("2_d1i1l")
 
 [node name="main" type="Node2D"]
@@ -350,30 +316,6 @@ position = Vector2(-6, -12)
 scale = Vector2(0.77, 0.77)
 texture = ExtResource("1_s3nna")
 
-[node name="mt_fuji2" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_r2soy")
-position = Vector2(-1629, 69)
-scale = Vector2(0.77, 0.77)
-texture = ExtResource("1_s3nna")
-
-[node name="mt_fuji3" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_7478t")
-position = Vector2(-2915, 130)
-scale = Vector2(0.77, 0.77)
-texture = ExtResource("1_s3nna")
-
-[node name="mt_fuji4" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_lmxxo")
-position = Vector2(-2756, 136)
-scale = Vector2(0.77, 0.77)
-texture = ExtResource("1_s3nna")
-
-[node name="mt_fuji5" type="Sprite2D" parent="."]
-material = SubResource("ShaderMaterial_xd8sf")
-position = Vector2(-673, 635)
-scale = Vector2(0.77, 0.77)
-texture = ExtResource("1_s3nna")
-
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(4992, 539)
+position = Vector2(2878, 314)
 zoom = Vector2(0.6, 0.6)

@@ -6,7 +6,6 @@ uniform float rotation : hint_range(-1.0, 1.0, .001);
 uniform float thickness : hint_range(0.0, 1.0, .0001);
 uniform float frequency : hint_range(0.0, 20.0, .0001);
 uniform float max_blacknesss : hint_range(0.0, 1.0, .0001);
-uniform float pen_frequency : hint_range(1.0, 200.0, .0001);
 uniform float paper_stength : hint_range(0.0, 20.0, .0001);
 
 uniform float line_strength : hint_range(0.0, 1.0, .0001);
