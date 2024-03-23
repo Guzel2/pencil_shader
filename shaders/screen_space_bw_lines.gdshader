@@ -10,11 +10,14 @@ uniform float pen_frequency : hint_range(1.0, 200.0, .0001);
 uniform float paper_stength : hint_range(0.0, 20.0, .0001);
 
 uniform float line_strength : hint_range(0.0, 1.0, .0001);
-uniform float brightness : hint_range(0.0, 20.0, .0001);
-uniform float contrast : hint_range(0.0, 20.0, .0001);
 uniform float saturation : hint_range(0.0, 20.0, .0001);
 
+uniform int kuwahara_sample_count : hint_range(0, 100, 1);
+uniform float kuwahara_sample_size : hint_range(0.0, 1.0, .0001);
+
 uniform sampler2D paper_texture;
+
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_nearest;
 
 float add_line_effect(vec3 color, vec2 uv)
 {
@@ -71,6 +74,10 @@ vec3 srgb_to_oklab(vec3 color)
 }
 
 void fragment() {
+	vec3 c = textureLod(screen_texture, SCREEN_UV, 0.0).rgb;
+
+	COLOR.rgb = c;
+	
 	vec2 texture_multiplier = 1.0 / TEXTURE_PIXEL_SIZE;
 	texture_multiplier = normalize(texture_multiplier);
 	
@@ -85,8 +92,6 @@ void fragment() {
 	paper_color.g = pow(paper_color.g, paper_stength);
 	paper_color.b = pow(paper_color.b, paper_stength);
 	
-	COLOR.rgb = mix(vec3(0.0), COLOR.rgb, brightness);
-	COLOR.rgb = mix(vec3(0.5), COLOR.rgb, contrast);
 	COLOR.rgb = mix(vec3(dot(vec3(1.0), COLOR.rgb) * 0.33333), COLOR.rgb, saturation);
 	COLOR = vec4(pencil_color) * line_strength + COLOR * (1.0 - line_strength);
 	COLOR *= paper_color;
