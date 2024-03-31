@@ -5,7 +5,7 @@ uniform int color_compare_points : hint_range(1, 256, 1) = 5;
 
 uniform float pixel_count : hint_range(1.0, 256.0, 1.0) = 2.0;
 
-vec4 quadrant(sampler2D tex, vec2 tile_offset, float x_dir, float y_dir, float height_modifier)
+vec4 quadrant(sampler2D tex, vec2 tile_offset, float x_dir, float y_dir)
 {
 	vec3 average_color = vec3(0,0,0);
 	
@@ -82,15 +82,15 @@ void fragment()
 	
 	// Get the mean and standard deviation of all quadrants around the current pixel
 	vec4 quadrants[4] = {
-		quadrant(TEXTURE, tile_uv, -1.0, -1.0, height_modifier),
-		quadrant(TEXTURE, tile_uv, 1.0, -1.0, height_modifier),
-		quadrant(TEXTURE, tile_uv, -1.0, 1.0, height_modifier),
-		quadrant(TEXTURE, tile_uv, 1.0, 1.0, height_modifier)
+		quadrant(TEXTURE, tile_uv, -1.0, -1.0),
+		quadrant(TEXTURE, tile_uv, 1.0, -1.0),
+		quadrant(TEXTURE, tile_uv, -1.0, 1.0),
+		quadrant(TEXTURE, tile_uv, 1.0, 1.0)
 	};
 	
-	//this is the deviation vor a spread from bottom left to top right
+	//this is the deviation for a spread from bottom left to top right
 	float down_up_deviation = quadrants[0].a + quadrants[2].a;
-	//this is the deviation vor a spread from top left to bottom right
+	//this is the deviation for a spread from top left to bottom right
 	float up_down_deviation = quadrants[1].a + quadrants[3].a;
 	
 	if (up_down_deviation < down_up_deviation)

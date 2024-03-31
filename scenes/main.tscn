@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://e5djdsuoqrc5"]
+[gd_scene load_steps=29 format=3 uid="uid://e5djdsuoqrc5"]
 
 [ext_resource type="Texture2D" uid="uid://cjc27arnotpa4" path="res://sprites/falling_leaves.png" id="1_bj3r2"]
 [ext_resource type="Shader" path="res://shaders/black_white.gdshader" id="1_dagdp"]
@@ -30,6 +30,12 @@ shader_parameter/brightness = 1.6409
 shader_parameter/contrast = 1.3748
 shader_parameter/saturation = 2.2703
 shader_parameter/paper_texture = SubResource("CompressedTexture2D_ky7di")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3vs18"]
+shader = ExtResource("7_xg8ih")
+shader_parameter/color_sample_points = 5
+shader_parameter/color_compare_points = 5
+shader_parameter/pixel_count = 137.0
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_nkt4h"]
 load_path = "res://.godot/imported/paper.png-991709bd6cb2b8ae2aeaa18029a4d78c.ctex"
@@ -111,6 +117,18 @@ shader_parameter/line_strength = 0.4551
 shader_parameter/brightness = 0.8775
 shader_parameter/contrast = 1.1805
 shader_parameter/saturation = 1.327
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8260m"]
+shader = ExtResource("7_xg8ih")
+shader_parameter/color_sample_points = 2
+shader_parameter/color_compare_points = 2
+shader_parameter/pixel_count = 35.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lwq10"]
+shader = ExtResource("7_xg8ih")
+shader_parameter/color_sample_points = 15
+shader_parameter/color_compare_points = 15
+shader_parameter/pixel_count = 35.0
 
 [sub_resource type="Shader" id="Shader_epmek"]
 code = "shader_type canvas_item;
@@ -268,6 +286,11 @@ material = SubResource("ShaderMaterial_0mg1v")
 position = Vector2(4998, 538)
 texture = ExtResource("1_o0ydk")
 
+[node name="Apricot2" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_3vs18")
+position = Vector2(3370, 1883)
+texture = ExtResource("1_o0ydk")
+
 [node name="FallingLeaves" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_l6rne")
 position = Vector2(2862, 325)
@@ -298,6 +321,16 @@ texture = ExtResource("7_et81j")
 [node name="Lovenstein" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_5gj10")
 position = Vector2(-1318, 210)
+texture = ExtResource("9_qaw36")
+
+[node name="Lovenstein2" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_8260m")
+position = Vector2(-2434, 1352)
+texture = ExtResource("9_qaw36")
+
+[node name="Lovenstein3" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_lwq10")
+position = Vector2(-3231, 1352)
 texture = ExtResource("9_qaw36")
 
 [node name="Test" type="Sprite2D" parent="."]
