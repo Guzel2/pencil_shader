@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://e5djdsuoqrc5"]
+[gd_scene load_steps=26 format=3 uid="uid://e5djdsuoqrc5"]
 
 [ext_resource type="Texture2D" uid="uid://cjc27arnotpa4" path="res://sprites/falling_leaves.png" id="1_bj3r2"]
 [ext_resource type="Shader" path="res://shaders/black_white.gdshader" id="1_dagdp"]
@@ -7,6 +7,11 @@
 [ext_resource type="Texture2D" uid="uid://l83f41ye1246" path="res://sprites/paper.png" id="2_d1i1l"]
 [ext_resource type="Texture2D" uid="uid://bfvyl33f7go0n" path="res://sprites/girl_rainbow_hair.png" id="3_ckrg0"]
 [ext_resource type="Texture2D" uid="uid://b83i4s2v1qg13" path="res://sprites/fire.png" id="7_et81j"]
+[ext_resource type="Shader" path="res://shaders/triangle_dither.gdshader" id="7_xg8ih"]
+[ext_resource type="Texture2D" uid="uid://4pphd2w6uaj8" path="res://sprites/lovenstein.png" id="9_qaw36"]
+[ext_resource type="Texture2D" uid="uid://3qhhk3en8da1" path="res://sprites/test.png" id="10_unh88"]
+[ext_resource type="Texture2D" uid="uid://bo7j0hr4gmtrr" path="res://sprites/squirrel.png" id="11_0khxr"]
+[ext_resource type="Shader" path="res://shaders/screen_space_bw_lines.gdshader" id="12_onvkm"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ky7di"]
 load_path = "res://.godot/imported/paper.png-991709bd6cb2b8ae2aeaa18029a4d78c.ctex"
@@ -73,6 +78,12 @@ shader_parameter/contrast = 0.959
 shader_parameter/saturation = 1.507
 shader_parameter/paper_texture = ExtResource("2_d1i1l")
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3dg14"]
+shader = ExtResource("7_xg8ih")
+shader_parameter/color_sample_points = 5
+shader_parameter/color_compare_points = 5
+shader_parameter/pixel_count = 35.0
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_eb463"]
 shader = ExtResource("1_dagdp")
 shader_parameter/color_count = 5
@@ -86,6 +97,169 @@ shader_parameter/line_strength = 0.2304
 shader_parameter/brightness = 0.948
 shader_parameter/contrast = 0.846
 shader_parameter/saturation = 1.401
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5gj10"]
+shader = ExtResource("1_dagdp")
+shader_parameter/color_count = 4
+shader_parameter/shade_count = 1
+shader_parameter/rotation = -0.719
+shader_parameter/thickness = 0.5449
+shader_parameter/frequency = 6.3108
+shader_parameter/max_blacknesss = 0.6202
+shader_parameter/paper_stength = 1.0
+shader_parameter/line_strength = 0.4551
+shader_parameter/brightness = 0.8775
+shader_parameter/contrast = 1.1805
+shader_parameter/saturation = 1.327
+
+[sub_resource type="Shader" id="Shader_epmek"]
+code = "shader_type canvas_item;
+
+uniform int color_sample_points : hint_range(1, 256, 1) = 5;
+uniform int color_compare_points : hint_range(1, 256, 1) = 5;
+
+uniform float pixel_count : hint_range(1.0, 256.0, 1.0) = 2.0;
+
+vec4 quadrant(sampler2D tex, vec2 tile_offset, float x_dir, float y_dir)
+{
+	vec3 average_color = vec3(0,0,0);
+	
+	// since x_dir and y_dir are -1 or 1 respectively this results in either 0 or .5 as offset
+	vec2 quadrant_offset = vec2((1.0 + x_dir) / 4.0, (1.0 + y_dir) / 4.0);
+	
+	for (int x = 0; x < color_sample_points; x ++)
+	{
+		float _x = float(x) / float(color_sample_points - 1);
+		_x /= 2.0;
+		_x += quadrant_offset.x;
+		_x /= pixel_count;
+		_x += tile_offset.x;
+		
+		for (int y = 0; y < color_sample_points; y ++)
+		{
+			float _y = float(y) / float(color_sample_points - 1);
+			_y /= 2.0;
+			_y += quadrant_offset.y;
+			_y /= pixel_count;
+			_y += tile_offset.y;
+			
+			average_color += texture(tex, vec2(_x, _y)).rgb;
+		}
+	}
+	
+	average_color /= float(color_sample_points * color_sample_points);
+	
+	float total_deviation = .0;
+	
+	for (int x = 0; x < color_compare_points; x ++)
+	{
+		float _x = float(x) / float(color_compare_points - 1);
+		_x /= 2.0;
+		_x += quadrant_offset.x;
+		_x /= pixel_count;
+		_x += tile_offset.x;
+		
+		for (int y = 0; y < color_compare_points; y ++)
+		{
+			float _y = float(y) / float(color_compare_points - 1);
+			_y /= 2.0;
+			_y += quadrant_offset.y;
+			_y /= pixel_count;
+			_y += tile_offset.y;
+			
+			vec3 local_color = texture(tex, vec2(_x, _y)).rgb;
+			total_deviation += abs(local_color.r - average_color.r);
+			total_deviation += abs(local_color.g - average_color.g);
+			total_deviation += abs(local_color.b - average_color.b);
+		}
+	}
+	
+	//divide by the total compare points times 3 for each color channel
+	total_deviation /= float(color_compare_points * color_compare_points * 3);
+	
+	//return texture(tex, uv);
+	return vec4(average_color.r, average_color.g, average_color.b, total_deviation);
+}
+
+void fragment()
+{
+	vec2 resolution = vec2(textureSize(TEXTURE, 0));
+	float height_modifier = resolution.y / resolution.x;
+	
+	vec2 uv = UV;
+	uv.y *= height_modifier;
+	
+	vec2 tile_uv = uv * pixel_count;
+	tile_uv = floor(tile_uv);
+	tile_uv /= pixel_count;
+	
+	vec2 local_uv = uv - tile_uv;
+	local_uv *= pixel_count;
+	
+	// Get the mean and standard deviation of all quadrants around the current pixel
+	vec4 quadrants[4] = {
+		quadrant(TEXTURE, tile_uv, -1.0, -1.0),
+		quadrant(TEXTURE, tile_uv, 1.0, -1.0),
+		quadrant(TEXTURE, tile_uv, -1.0, 1.0),
+		quadrant(TEXTURE, tile_uv, 1.0, 1.0)
+	};
+	
+	//this is the deviation vor a spread from bottom left to top right
+	float down_up_deviation = quadrants[0].a + quadrants[2].a;
+	//this is the deviation vor a spread from top left to bottom right
+	float up_down_deviation = quadrants[1].a + quadrants[3].a;
+	
+	if (up_down_deviation < down_up_deviation)
+	{
+		//down up spread (from left to right)
+		if (local_uv.x + local_uv.y < 1.0)
+		{
+			COLOR.rgb = quadrants[0].rgb;
+		}
+		else
+		{
+			COLOR.rgb = quadrants[2].rgb;
+		}
+	}
+	else
+	{
+		//up down spread (from left to right)
+		if (local_uv.x + (1.0 - local_uv.y) < 1.0)
+		{
+			COLOR.rgb = quadrants[3].rgb;
+		}
+		else
+		{
+			COLOR.rgb = quadrants[1].rgb;
+		}
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scfk7"]
+shader = SubResource("Shader_epmek")
+shader_parameter/color_sample_points = 5
+shader_parameter/color_compare_points = 5
+shader_parameter/pixel_count = 6.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gcghd"]
+shader = ExtResource("7_xg8ih")
+shader_parameter/color_sample_points = 5
+shader_parameter/color_compare_points = 5
+shader_parameter/pixel_count = 20.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4c7vb"]
+shader = ExtResource("12_onvkm")
+shader_parameter/color_count = 9
+shader_parameter/shade_count = 5
+shader_parameter/rotation = 4.75e-08
+shader_parameter/thickness = 0.6535
+shader_parameter/frequency = 5.8989
+shader_parameter/max_blacknesss = 0.0
+shader_parameter/paper_stength = 11.236
+shader_parameter/line_strength = 0.2304
+shader_parameter/brightness = 0.8765
+shader_parameter/contrast = 1.385
+shader_parameter/saturation = 1.325
 
 [node name="main" type="Node2D"]
 
@@ -110,11 +284,50 @@ position = Vector2(-6, -12)
 scale = Vector2(0.77, 0.77)
 texture = ExtResource("1_s3nna")
 
+[node name="mt_fuji2" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_3dg14")
+position = Vector2(-17, 675)
+scale = Vector2(0.77, 0.77)
+texture = ExtResource("1_s3nna")
+
 [node name="Fire" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_eb463")
 position = Vector2(-590, 1447)
 texture = ExtResource("7_et81j")
 
+[node name="Lovenstein" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_5gj10")
+position = Vector2(-1318, 210)
+texture = ExtResource("9_qaw36")
+
+[node name="Test" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_scfk7")
+position = Vector2(-768, 205)
+texture = ExtResource("10_unh88")
+
+[node name="Test2" type="Sprite2D" parent="."]
+position = Vector2(-668, 166)
+texture = ExtResource("10_unh88")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-566, 1442)
 zoom = Vector2(0.885, 0.885)
+
+[node name="Squirrel" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_gcghd")
+position = Vector2(-2185, 500)
+texture = ExtResource("11_0khxr")
+
+[node name="Squirrel2" type="Sprite2D" parent="."]
+position = Vector2(-2540, 500)
+texture = ExtResource("11_0khxr")
+
+[node name="Squirrel3" type="Sprite2D" parent="."]
+position = Vector2(-2943, 500)
+texture = ExtResource("11_0khxr")
+
+[node name="Test3" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_4c7vb")
+position = Vector2(-2368.69, 487.313)
+scale = Vector2(15, 15)
+texture = ExtResource("10_unh88")

@@ -1,19 +1,18 @@
 shader_type canvas_item;
 
-uniform int color_count : hint_range(0, 256, 1);
+uniform int color_count : hint_range(0, 256, 1) = 4;
+uniform int shade_count : hint_range(0, 256, 1) = 2;
 
 uniform float rotation : hint_range(-1.0, 1.0, .001);
-uniform float thickness : hint_range(0.0, 1.0, .0001);
-uniform float frequency : hint_range(0.0, 20.0, .0001);
+uniform float thickness : hint_range(0.0, 1.0, .0001) = .5;
+uniform float frequency : hint_range(0.0, 20.0, .0001) = 5.0;
 uniform float max_blacknesss : hint_range(0.0, 1.0, .0001);
-uniform float pen_frequency : hint_range(1.0, 200.0, .0001);
-uniform float paper_stength : hint_range(0.0, 20.0, .0001);
+uniform float paper_stength : hint_range(0.0, 20.0, .0001) = 1.0;
 
-uniform float line_strength : hint_range(0.0, 1.0, .0001);
-uniform float saturation : hint_range(0.0, 20.0, .0001);
-
-uniform int kuwahara_sample_count : hint_range(0, 100, 1);
-uniform float kuwahara_sample_size : hint_range(0.0, 1.0, .0001);
+uniform float line_strength : hint_range(0.0, 1.0, .0001) = .5;
+uniform float brightness : hint_range(0.0, 20.0, .0001) = 1.0;
+uniform float contrast : hint_range(0.0, 20.0, .0001) = 1.0;
+uniform float saturation : hint_range(0.0, 20.0, .0001) = 1.0;
 
 uniform sampler2D paper_texture;
 
@@ -28,8 +27,9 @@ float add_line_effect(vec3 color, vec2 uv)
 	int color_id = int(luminosity * float(color_count - 1) + .5);
 	float pencil_color = 1.0;
 	
-	for (int i = color_id; i < color_count - 1; i++)
+	for (int i = color_id; i < shade_count; i++)
 	{
+		
 		float rot = rotation + sin(float(i * 4)); 
 		
 		float x = uv.x * rot + uv.y * (1.0 - abs(rot));
@@ -92,6 +92,8 @@ void fragment() {
 	paper_color.g = pow(paper_color.g, paper_stength);
 	paper_color.b = pow(paper_color.b, paper_stength);
 	
+	COLOR.rgb = mix(vec3(0.0), COLOR.rgb, brightness);
+	COLOR.rgb = mix(vec3(0.5), COLOR.rgb, contrast);
 	COLOR.rgb = mix(vec3(dot(vec3(1.0), COLOR.rgb) * 0.33333), COLOR.rgb, saturation);
 	COLOR = vec4(pencil_color) * line_strength + COLOR * (1.0 - line_strength);
 	COLOR *= paper_color;

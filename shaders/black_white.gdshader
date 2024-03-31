@@ -5,7 +5,7 @@ uniform int shade_count : hint_range(0, 256, 1) = 2;
 
 uniform float rotation : hint_range(-1.0, 1.0, .001);
 uniform float thickness : hint_range(0.0, 1.0, .0001) = .5;
-uniform float frequency : hint_range(0.0, 20.0, .0001) = 1.0;
+uniform float frequency : hint_range(0.0, 20.0, .0001) = 5.0;
 uniform float max_blacknesss : hint_range(0.0, 1.0, .0001);
 uniform float paper_stength : hint_range(0.0, 20.0, .0001) = 1.0;
 
