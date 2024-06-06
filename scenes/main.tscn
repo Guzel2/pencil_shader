@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://e5djdsuoqrc5"]
+[gd_scene load_steps=33 format=3 uid="uid://e5djdsuoqrc5"]
 
 [ext_resource type="Texture2D" uid="uid://cjc27arnotpa4" path="res://sprites/falling_leaves.png" id="1_bj3r2"]
 [ext_resource type="Shader" path="res://shaders/black_white.gdshader" id="1_dagdp"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bfvyl33f7go0n" path="res://sprites/girl_rainbow_hair.png" id="3_ckrg0"]
 [ext_resource type="Texture2D" uid="uid://b83i4s2v1qg13" path="res://sprites/fire.png" id="7_et81j"]
 [ext_resource type="Shader" path="res://shaders/triangle_dither.gdshader" id="7_xg8ih"]
+[ext_resource type="Shader" path="res://shaders/color_reduction.gdshader" id="8_cga20"]
 [ext_resource type="Texture2D" uid="uid://4pphd2w6uaj8" path="res://sprites/lovenstein.png" id="9_qaw36"]
 [ext_resource type="Texture2D" uid="uid://3qhhk3en8da1" path="res://sprites/test.png" id="10_unh88"]
 [ext_resource type="Texture2D" uid="uid://bo7j0hr4gmtrr" path="res://sprites/squirrel.png" id="11_0khxr"]
@@ -69,6 +70,13 @@ shader_parameter/brightness = 1.16
 shader_parameter/contrast = 0.745
 shader_parameter/saturation = 1.6812
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aoq26"]
+shader = ExtResource("8_cga20")
+shader_parameter/color_count = 9
+shader_parameter/color_offset = 8
+shader_parameter/luminosity_threshhold = 4.489
+shader_parameter/dark_color = Color(0.1, 0.1, 0.1, 1)
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_165wn"]
 shader = ExtResource("1_dagdp")
 shader_parameter/color_count = 6
@@ -89,6 +97,61 @@ shader = ExtResource("7_xg8ih")
 shader_parameter/color_sample_points = 5
 shader_parameter/color_compare_points = 5
 shader_parameter/pixel_count = 35.0
+
+[sub_resource type="Shader" id="Shader_0al4x"]
+code = "shader_type canvas_item;
+
+uniform int color_count : hint_range(0, 256, 1) = 4;
+uniform int color_offset : hint_range(1, 256, 1) = 4;
+
+uniform float luminosity_threshhold : hint_range(.0, 1.0, .01) = .2;
+uniform vec4 dark_color : source_color = vec4(.2);
+
+void fragment()
+{
+	float luminosity = dot(COLOR.rgb, vec3(0.21, 0.72, 0.07));
+	
+	vec3 color = COLOR.rgb;
+	
+	color = round(color * float(color_count - 1)) / float(color_count - 1);
+	
+	vec3 second_color = COLOR.rgb;
+	
+	second_color = round(second_color * float(color_count - 1 + color_offset)) / float(color_count - 1 + color_offset);
+	
+	vec3 test_color = second_color - color;
+	
+	if (test_color.r + test_color.g + test_color.b > .1)
+	{
+		//COLOR.rgb = vec3(.0);
+	}
+	
+	if (luminosity < luminosity_threshhold)
+	{
+		//COLOR.rgb = dark_color.rgb;
+	}
+	
+	
+	luminosity = dot(COLOR.rgb, vec3(0.21, 0.72, 0.07));
+	
+	float second_luminosity = luminosity;
+	
+	luminosity = round(luminosity * float(color_count - 1)) / float(color_count - 1);
+	second_luminosity = round(second_luminosity * float(color_count - 1 + color_offset)) / float(color_count - 1 + color_offset);
+	
+	if (abs(luminosity - second_luminosity) > luminosity_threshhold)
+	{
+		COLOR.rgb = dark_color.rgb;
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lx312"]
+resource_local_to_scene = true
+shader = SubResource("Shader_0al4x")
+shader_parameter/color_count = 4
+shader_parameter/color_offset = 4
+shader_parameter/luminosity_threshhold = 0.53
+shader_parameter/dark_color = Color(0.08, 0.08, 0.08, 1)
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_eb463"]
 shader = ExtResource("1_dagdp")
@@ -301,6 +364,11 @@ material = SubResource("ShaderMaterial_d2g1g")
 position = Vector2(1258, 955)
 texture = ExtResource("3_ckrg0")
 
+[node name="GirlRainbowHair2" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_aoq26")
+position = Vector2(666, -1167)
+texture = ExtResource("3_ckrg0")
+
 [node name="mt_fuji" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_165wn")
 position = Vector2(-6, -12)
@@ -310,6 +378,12 @@ texture = ExtResource("1_s3nna")
 [node name="mt_fuji2" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_3dg14")
 position = Vector2(-17, 675)
+scale = Vector2(0.77, 0.77)
+texture = ExtResource("1_s3nna")
+
+[node name="mt_fuji3" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_lx312")
+position = Vector2(-584, -856)
 scale = Vector2(0.77, 0.77)
 texture = ExtResource("1_s3nna")
 
